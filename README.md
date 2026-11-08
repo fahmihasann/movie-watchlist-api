@@ -4,7 +4,7 @@ Laravel 12 REST API for a movie watchlist and review platform. It serves 20 seed
 
 A zero-build companion frontend lives in `frontend/`, and a Postman collection in `postman/` documents and runs the main flows.
 
-> **Not deployed.** Deployment was optional in the brief. All examples use `http://localhost:8000/api`.
+> **Not deployed.**. All examples use `http://localhost:8000/api`.
 
 ## Tech stack
 
