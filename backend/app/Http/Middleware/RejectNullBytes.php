@@ -18,18 +18,46 @@ class RejectNullBytes
         }
 
         if ($this->containsNullByte($request->query->all())) {
-            return response()->json(['message' => 'The request must not contain null bytes.'], 400);
+            return $this->rejection($request);
         }
 
         if ($request->isJson()) {
             $decoded = json_decode((string) $request->getContent(), true);
 
             if (json_last_error() === JSON_ERROR_NONE && $this->containsNullByte($decoded)) {
-                return response()->json(['message' => 'The request must not contain null bytes.'], 400);
+                return $this->rejection($request);
             }
         }
 
         return $next($request);
+    }
+
+    /**
+     * Reject before HandleCors runs, so this response must carry the CORS
+     * headers itself for the browser to expose the JSON body.
+     */
+    private function rejection(Request $request): Response
+    {
+        $response = response()->json(['message' => 'The request must not contain null bytes.'], 400);
+
+        $origins = (array) config('cors.allowed_origins', ['*']);
+        $origin = $request->headers->get('Origin');
+
+        if (in_array('*', $origins, true)) {
+            if ($origin !== null) {
+                $response->headers->set('Access-Control-Allow-Origin', '*');
+            }
+
+            return $response;
+        }
+
+        $response->setVary('Origin', false);
+
+        if ($origin !== null && in_array($origin, $origins, true)) {
+            $response->headers->set('Access-Control-Allow-Origin', $origin);
+        }
+
+        return $response;
     }
 
     private function containsNullByte(mixed $value): bool
