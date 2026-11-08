@@ -2,9 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\Validator;
+use App\Rules\NoNullBytes;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
 
 class RecommendMovieRequest extends FormRequest
 {
@@ -19,7 +18,7 @@ class RecommendMovieRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'prompt' => ['required', 'string', 'max:1000'],
+            'prompt' => ['required', 'string', 'max:1000', new NoNullBytes],
         ];
     }
 
@@ -30,17 +29,5 @@ class RecommendMovieRequest extends FormRequest
         if (is_string($prompt)) {
             $this->merge(['prompt' => trim($prompt)]);
         }
-    }
-
-    protected function failedValidation(Validator $validator): void
-    {
-        $errors = $validator->errors();
-
-        throw new HttpResponseException(
-            response()->json([
-                'message' => $errors->first(),
-                'errors' => $errors,
-            ], 422),
-        );
     }
 }

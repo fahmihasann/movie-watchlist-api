@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\StrictInteger;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreWatchlistRequest extends FormRequest
@@ -17,7 +18,7 @@ class StoreWatchlistRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'movieId' => ['required', 'integer', 'min:1'],
+            'movieId' => ['required', 'integer', new StrictInteger, 'min:1', 'max:9223372036854775807'],
         ];
     }
 }

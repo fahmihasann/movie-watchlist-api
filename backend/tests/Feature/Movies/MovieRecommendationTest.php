@@ -80,7 +80,7 @@ class MovieRecommendationTest extends TestCase
         Http::fake();
 
         $this->postJson('/api/movies/recommend', [])
-            ->assertStatus(422)
+            ->assertStatus(400)
             ->assertJsonStructure(['message', 'errors' => ['prompt']]);
 
         Http::assertNothingSent();
@@ -93,7 +93,7 @@ class MovieRecommendationTest extends TestCase
         $this->postJson('/api/movies/recommend', [
             'prompt' => ['not', 'a', 'string'],
         ])
-            ->assertStatus(422)
+            ->assertStatus(400)
             ->assertJsonStructure(['message', 'errors' => ['prompt']]);
 
         Http::assertNothingSent();
@@ -106,7 +106,7 @@ class MovieRecommendationTest extends TestCase
         $this->postJson('/api/movies/recommend', [
             'prompt' => '   ',
         ])
-            ->assertStatus(422)
+            ->assertStatus(400)
             ->assertJsonStructure(['message', 'errors' => ['prompt']]);
 
         Http::assertNothingSent();

@@ -25,6 +25,37 @@ abstract class TestCase extends BaseTestCase
         $this->assertTestingDatabase();
     }
 
+    /**
+     * Encode an empty PHP array as an empty JSON object, not an empty JSON array.
+     *
+     * The framework helper would otherwise send [] for calls such as
+     * postJson('/api/login', []), which is not an object payload. Tests that
+     * intentionally exercise an array body use call() with a raw string.
+     */
+    public function json($method, $uri, array $data = [], array $headers = [], $options = 0)
+    {
+        if ($data !== []) {
+            return parent::json($method, $uri, $data, $headers, $options);
+        }
+
+        $content = '{}';
+        $headers = array_merge([
+            'CONTENT_LENGTH' => mb_strlen($content, '8bit'),
+            'CONTENT_TYPE' => 'application/json',
+            'Accept' => 'application/json',
+        ], $headers);
+
+        return $this->call(
+            $method,
+            $uri,
+            [],
+            $this->prepareCookiesForJsonRequest(),
+            [],
+            $this->transformHeadersToServerVars($headers),
+            $content,
+        );
+    }
+
     private function assertTestingDatabaseConfigured(): void
     {
         $connection = config('database.default');
